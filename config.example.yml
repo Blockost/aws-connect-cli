@@ -1,0 +1,9 @@
+ssh:
+  publicKeyFilePath: 
+  privateKeyFilePath: 
+instances:
+  - name: 
+    id: 
+    region: 
+    availibilityZone: 
+    shellUser:

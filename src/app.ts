@@ -1,3 +1,4 @@
+import { Command } from 'commander';
 import { promises as fsp } from 'fs';
 import inquirer from 'inquirer';
 import YAML from 'yaml';
@@ -8,8 +9,13 @@ import {
   INTERACTIVE_SHELL_COMMAND as START_INTERACTIVE_SHELL_COMMAND,
 } from './constants';
 
+const program = new Command();
+program.option('-f, --file <path>', 'Path to connections configuration file', './config.yml');
+program.parse(process.argv);
+const { file } = program.opts();
+
 (async () => {
-  const buffer = await fsp.readFile('./config.yml', 'utf-8');
+  const buffer = await fsp.readFile(file, 'utf-8');
   const config = YAML.parse(buffer) as Config;
   const instances = config.instances;
 

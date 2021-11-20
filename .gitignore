@@ -105,3 +105,4 @@ dist
 
 # App specific
 config.yml
+out/

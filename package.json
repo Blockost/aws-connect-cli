@@ -12,7 +12,7 @@
     },
     "pkg": {
         "targets": [
-            "node10-linux-x64"
+            "node12-linux-x64"
         ],
         "outputPath": "dist"
     },

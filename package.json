@@ -1,41 +1,41 @@
 {
-  "name": "aws-connect-cli",
-  "version": "0.0.1",
-  "description": "Simple CLI to connect or forward traffic to AWS EC2 instances. Requires aws-cli installed locally.",
-  "main": "app.js",
-  "scripts": {
-    "start": "ts-node ./src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc",
-    "ts-node": "ts-node",
-    "pkg": "pkg"
-  },
-  "pkg": {
-    "targets": [
-      "node10-linux-x64"
-    ],
-    "outputPath": "dist"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Blockost/aws-connect-cli.git"
-  },
-  "author": "Simon Espigolé",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Blockost/aws-connect-cli/issues"
-  },
-  "homepage": "https://github.com/Blockost/aws-connect-cli#readme",
-  "dependencies": {
-    "commander": "^8.3.0",
-    "inquirer": "^8.1.2",
-    "pkg": "^5.4.1",
-    "yaml": "^1.10.2"
-  },
-  "devDependencies": {
-    "@types/inquirer": "^7.3.3",
-    "@types/node": "^16.6.2",
-    "ts-node": "^10.1.0",
-    "typescript": "^4.3.5"
-  }
+    "name": "aws-connect-cli",
+    "version": "0.0.1",
+    "description": "Simple CLI to connect or forward traffic to AWS EC2 instances. Requires aws-cli installed locally.",
+    "main": "app.js",
+    "scripts": {
+        "start": "ts-node ./src/app.ts",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "tsc": "tsc",
+        "ts-node": "ts-node",
+        "pkg": "pkg"
+    },
+    "pkg": {
+        "targets": [
+            "node10-linux-x64"
+        ],
+        "outputPath": "dist"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Blockost/aws-connect-cli.git"
+    },
+    "author": "Simon Espigolé",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Blockost/aws-connect-cli/issues"
+    },
+    "homepage": "https://github.com/Blockost/aws-connect-cli#readme",
+    "dependencies": {
+        "commander": "^8.3.0",
+        "inquirer": "^8.1.2",
+        "pkg": "^5.4.1",
+        "yaml": "^1.10.2"
+    },
+    "devDependencies": {
+        "@types/inquirer": "^7.3.3",
+        "@types/node": "^16.6.2",
+        "ts-node": "^10.1.0",
+        "typescript": "^4.3.5"
+    }
 }

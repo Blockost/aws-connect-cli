@@ -4,15 +4,16 @@
 ##########################################################################
 
 ssh: # Configuration of the SSH client
-  publicKeyFilePath: # Path to the public key that will be sent on the EC2 instance
-  privateKeyFilePath: # Path to the private key that will be used to authenticate
+    publicKeyFilePath: # Path to the public key that will be sent on the EC2 instance
+    privateKeyFilePath: # Path to the private key that will be used to authenticate
 instances: # List of instances to connect to
-  - name: # EC2 instance name that will appear in the instance list
-    id: # EC2 instance ID
-    region: # EC2 instance region (e.g us-east-1, eu-west-2)
-    availibilityZone: # EC2 instance availibity zone (e.g eu-west-2a)
-    shellUser: # username to use when establishing the SSH connection
-    forwardTo: # Optional, used to forward traffic from this computer to a remote host via the EC2 instance
-      localPort: # Local machine port
-      remoteHost: # Remote host adresse
-      remotePort: # Remote host port
+    - name: # EC2 instance name that will appear in the instance list
+      id: # EC2 instance ID
+      region: # EC2 instance region (e.g us-east-1, eu-west-2)
+      availibilityZone: # EC2 instance availibity zone (e.g eu-west-2a)
+      shellUser: # username to use when establishing the SSH connection
+      portForwardingOptions: # Optional, a list of port forwarding configs. Used to forward traffic from this computer to a remote host via the EC2 instance
+          - name: # Name of this configuration (will be used to display the list of choices)
+            localPort: # Local machine port
+            remoteHost: # Remote host adresse
+            remotePort: # Remote host port

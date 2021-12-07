@@ -1,84 +1,132 @@
 // import entire SDK
 import { spawn } from 'child_process';
+import inquirer from 'inquirer';
+import { PortForwardingConfig } from '../constants';
 import { AbstractCustomSSHClient } from './abstract-client';
 
 /**
  * Uses Bash commands and aws-cli to connect to EC2 instances.
  */
 export class BashBasedSSHClient extends AbstractCustomSSHClient {
-  async startInteractiveSession(): Promise<void> {
-    this.sendSSHKey();
-    this.connectThroughSsm();
-  }
-
-  async forwardTraffic(): Promise<void> {
-    this.sendSSHKey();
-
-    if (!this.instanceDetails.forwardTo) {
-      console.error(`Instance ${this.instanceDetails.name} is not configured to forward traffic`);
-      return;
+    async startInteractiveSession(): Promise<void> {
+        this.sendSSHKey();
+        this.connectThroughSsm();
     }
 
-    const { localPort, remoteHost, remotePort } = this.instanceDetails.forwardTo;
+    async forwardTraffic(): Promise<void> {
+        const options = this.instanceDetails.portForwardingOptions || [];
+        if (options.length < 1) {
+            console.error(`Instance ${this.instanceDetails.name} is not configured to forward traffic`);
+            return;
+        }
 
-    console.log(
-      `All traffic from localhost:${localPort} is redirected to "${this.instanceDetails.name}" ${remoteHost}:${remotePort}`
-    );
+        const config = await this.getUserPortFowardingSelection(options);
 
-    const sshProcess = spawn(
-      'ssh',
-      [
-        '-L',
-        `${localPort}:${remoteHost}:${remotePort}`,
-        '-N', // Do not start shell, just do nothing, wait patiently and keep the tunnel open
-        '-o',
-        `ProxyCommand=aws ssm start-session --target %h --region ${this.instanceDetails.region} --document AWS-StartSSHSession --parameters portNumber=%p`,
-        '-o',
-        'IdentitiesOnly=yes',
-        '-i',
-        this.sshConfig.privateKeyFilePath,
-        `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
-      ],
-      { stdio: 'inherit' }
-    );
+        this.sendSSHKey();
 
-    sshProcess
-      .once('spawn', () => {
-        console.log('[SSH spawned process] spawned successfully !!');
-      })
-      .on('error', (err) => {
-        console.error('[SSH spawned process] error: ' + err);
-      })
-      .on('close', () => {
-        console.log('[SSH spawned process] closed');
-      });
-  }
+        console.log(`Connecting to "${this.instanceDetails.name}" and forwarding local traffic as follows:`);
+        console.log(`localhost:${config.localPort} => (${this.instanceDetails.name})${config.remoteHost}:${config.remotePort}`);
 
-  private connectThroughSsm() {
-    const sshProcess = spawn(
-      'ssh',
-      [
-        '-o',
-        `ProxyCommand=aws ssm start-session --target %h --region ${this.instanceDetails.region} --document AWS-StartSSHSession --parameters portNumber=%p`,
-        '-o',
-        'IdentitiesOnly=yes',
-        '-i',
-        this.sshConfig.privateKeyFilePath,
-        `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
-      ],
-      { stdio: 'inherit' }
-    );
+        const sshProcess = spawn(
+            'ssh',
+            [
+                '-L',
+                `${config.localPort}:${config.remoteHost}:${config.remotePort}`,
+                '-N', // Do not start shell, just do nothing, wait patiently and keep the tunnel open
+                '-o',
+                `ProxyCommand=aws ssm start-session --target %h --region ${this.instanceDetails.region} --document AWS-StartSSHSession --parameters portNumber=%p`,
+                '-o',
+                'IdentitiesOnly=yes',
+                '-i',
+                this.sshConfig.privateKeyFilePath,
+                `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
+            ],
+            { stdio: 'inherit' }
+        );
 
-    sshProcess
-      .on('spawn', () => {
-        console.log('[SSH spawned process] spawned successfully !!');
-      })
-      .on('error', (err) => {
-        console.error('[SSH spawned process] error: ' + err);
-      })
-      .on('close', () => {
-        console.log('[SSH spawned process] closed');
-        console.log(`You are no longer connected to "${this.instanceDetails.name}". Bye bye !`);
-      });
-  }
+        sshProcess
+            .once('spawn', () => {
+                console.log('[SSH spawned process] spawned successfully !!');
+            })
+            .on('error', (err) => {
+                console.error('[SSH spawned process] error: ' + err);
+            })
+            .on('close', () => {
+                console.log('[SSH spawned process] closed');
+            });
+    }
+
+    private connectThroughSsm() {
+        const sshProcess = spawn(
+            'ssh',
+            [
+                '-o',
+                `ProxyCommand=aws ssm start-session --target %h --region ${this.instanceDetails.region} --document AWS-StartSSHSession --parameters portNumber=%p`,
+                '-o',
+                'IdentitiesOnly=yes',
+                '-i',
+                this.sshConfig.privateKeyFilePath,
+                `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
+            ],
+            { stdio: 'inherit' }
+        );
+
+        sshProcess
+            .on('spawn', () => {
+                console.log('[SSH spawned process] spawned successfully !!');
+            })
+            .on('error', (err) => {
+                console.error('[SSH spawned process] error: ' + err);
+            })
+            .on('close', () => {
+                console.log('[SSH spawned process] closed');
+                console.log(`You are no longer connected to "${this.instanceDetails.name}". Bye bye !`);
+            });
+    }
+
+    private async getUserPortFowardingSelection(options: PortForwardingConfig[]): Promise<PortForwardingConfig> {
+        const command = (
+            await inquirer.prompt({
+                type: 'list',
+                name: 'command',
+                message: 'Select a port forwarding configuration',
+                choices: [...options.map((o) => o.name), 'Enter manually'],
+            })
+        ).command as string;
+
+        if (command === 'Enter manually') {
+            const localPort = (
+                await inquirer.prompt({
+                    type: 'number',
+                    name: 'localPort',
+                    message: 'Specify the local port to forward to the remote instance',
+                })
+            ).localPort as number;
+            const remoteHost = (
+                await inquirer.prompt({
+                    type: 'input',
+                    name: 'remoteHost',
+                    message: 'Specify the remote host address to forward to',
+                    default: 'localhost',
+                })
+            ).remoteHost as string;
+
+            const remotePort = (
+                await inquirer.prompt({
+                    type: 'number',
+                    name: 'remotePort',
+                    message: 'Specify the remote host address to forward to',
+                })
+            ).remotePort as number;
+
+            return { name: 'Manual', remoteHost, remotePort, localPort };
+        } else {
+            const config = options.find((o) => o.name === command);
+            if (!config) {
+                throw new Error(`No port forwarding configuration with name "${command}"`);
+            } else {
+                return config;
+            }
+        }
+    }
 }

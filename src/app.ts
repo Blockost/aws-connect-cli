@@ -47,6 +47,7 @@ const { file } = program.opts();
 
         case FORWARD_TRAFFIC_COMMAND:
             await sshClient.forwardTraffic();
+            break;
 
         default:
             throw new Error(`Unknown command: ${command}`);

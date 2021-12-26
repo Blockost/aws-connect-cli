@@ -2,12 +2,12 @@
 import { spawn } from 'child_process';
 import inquirer from 'inquirer';
 import { PortForwardingConfig } from '../constants';
-import { AbstractCustomSSHClient } from './abstract-client';
+import { AbstractClient } from './abstract-client';
 
 /**
  * Uses Bash commands and aws-cli to connect to EC2 instances.
  */
-export class BashBasedSSHClient extends AbstractCustomSSHClient {
+export class BashBasedClient extends AbstractClient {
     async startInteractiveSession(): Promise<void> {
         this.sendSSHKey();
         this.connectThroughSsm();
@@ -106,7 +106,7 @@ export class BashBasedSSHClient extends AbstractCustomSSHClient {
                 await inquirer.prompt({
                     type: 'input',
                     name: 'remoteHost',
-                    message: 'Specify the remote host address to forward to',
+                    message: 'Specify the remote host **address** to forward to',
                     default: 'localhost',
                 })
             ).remoteHost as string;
@@ -115,7 +115,7 @@ export class BashBasedSSHClient extends AbstractCustomSSHClient {
                 await inquirer.prompt({
                     type: 'number',
                     name: 'remotePort',
-                    message: 'Specify the remote host address to forward to',
+                    message: 'Specify the remote host **port** to forward to',
                 })
             ).remotePort as number;
 

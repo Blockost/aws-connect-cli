@@ -1,7 +1,11 @@
 import { execSync } from 'child_process';
 import { InstanceDetails, SSHConfig } from '../constants';
 
-export abstract class AbstractCustomSSHClient {
+/**
+ * Abstract client that provides a base implementation to connect to EC2 instances and uses `ec2-instance-connect` to
+ * push temporary SSH keys to target instance
+ */
+export abstract class AbstractClient {
     constructor(protected readonly sshConfig: SSHConfig, protected readonly instanceDetails: InstanceDetails) {
         console.log(`** => ${this.instanceDetails.name} (${this.instanceDetails.id})`);
     }

@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { promises as fsp } from 'fs';
 import inquirer from 'inquirer';
 import YAML from 'yaml';
-import { BashBasedSSHClient } from './clients/bash-client';
+import { BashBasedClient } from './clients/bash-client';
 import { Config, FORWARD_TRAFFIC_COMMAND, START_INTERACTIVE_SHELL_COMMAND } from './constants';
 
 const program = new Command();
@@ -38,15 +38,15 @@ const { file } = program.opts();
         throw new Error(`Unknown instance: ${instanceName}`);
     }
 
-    const sshClient = new BashBasedSSHClient(config.ssh, selectedInstance);
+    const client = new BashBasedClient(config.ssh, selectedInstance);
 
     switch (command) {
         case START_INTERACTIVE_SHELL_COMMAND:
-            await sshClient.startInteractiveSession();
+            await client.startInteractiveSession();
             break;
 
         case FORWARD_TRAFFIC_COMMAND:
-            await sshClient.forwardTraffic();
+            await client.forwardTraffic();
             break;
 
         default:

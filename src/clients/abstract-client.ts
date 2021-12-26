@@ -1,4 +1,7 @@
 import { execSync } from 'child_process';
+import { promises as fsp } from 'fs';
+import os from 'os';
+import path from 'path';
 import { InstanceDetails, SSHConfig } from '../constants';
 
 /**
@@ -14,7 +17,14 @@ export abstract class AbstractClient {
 
     abstract forwardTraffic(): Promise<void>;
 
-    protected sendSSHKey(): void {
+    /**
+     * Sends an SSH public key to the target EC2 instace via `ec2-instance-connect`.
+     */
+    protected async sendSSHKey(): Promise<void> {
+        if (!this.sshConfig.useExistingKeyPair) {
+            await this.generateNewSSHKeyPar();
+        }
+
         console.log(`Pushing temporary SSH public key to EC2 instance`);
         console.log('Key will expire in 60 seconds');
 
@@ -28,5 +38,18 @@ export abstract class AbstractClient {
               --ssh-public-key file://${this.sshConfig.publicKeyFilePath}`,
             { stdio: 'inherit' }
         );
+    }
+
+    private async generateNewSSHKeyPar(): Promise<void> {
+        const tmpDir = await fsp.mkdtemp(path.join(os.tmpdir(), 'awsconnect-'));
+        const tmpKeyPath = `${tmpDir}/rsa-key`;
+
+        console.log(`Generating new SSH key pair on-the-fly (no passphrase) in ${tmpDir}"`);
+
+        
+
+        execSync(`ssh-keygen -t rsa -b 4096 -C "awsconnect@example.com" -f ${tmpKeyPath} -q -N ""`);
+        this.sshConfig.privateKeyFilePath = tmpKeyPath;
+        this.sshConfig.publicKeyFilePath = `${tmpKeyPath}.pub`;
     }
 }

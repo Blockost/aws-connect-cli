@@ -4,6 +4,7 @@ export interface Config {
 }
 
 export interface SSHConfig {
+    useExistingKeyPair: boolean;
     publicKeyFilePath: string;
     privateKeyFilePath: string;
 }

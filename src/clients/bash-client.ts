@@ -9,7 +9,7 @@ import { AbstractClient } from './abstract-client';
  */
 export class BashBasedClient extends AbstractClient {
     async startInteractiveSession(): Promise<void> {
-        this.sendSSHKey();
+        await this.sendSSHKey();
         this.connectThroughSsm();
     }
 
@@ -22,7 +22,7 @@ export class BashBasedClient extends AbstractClient {
 
         const config = await this.getUserPortFowardingSelection(options);
 
-        this.sendSSHKey();
+        await this.sendSSHKey();
 
         console.log(`Connecting to "${this.instanceDetails.name}" and forwarding local traffic as follows:`);
         console.log(`localhost:${config.localPort} => (${this.instanceDetails.name})${config.remoteHost}:${config.remotePort}`);

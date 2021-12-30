@@ -1,12 +1,17 @@
 export interface Config {
     ssh: SSHConfig;
     instances: InstanceDetails[];
+    awscli?: AWSCLIConfig;
 }
 
 export interface SSHConfig {
     useExistingKeyPair: boolean;
     publicKeyFilePath: string;
     privateKeyFilePath: string;
+}
+
+export interface AWSCLIConfig {
+    profile: string;
 }
 
 export interface InstanceDetails {

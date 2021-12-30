@@ -1,9 +1,8 @@
 import { Command } from 'commander';
-import { promises as fsp } from 'fs';
 import inquirer from 'inquirer';
-import YAML from 'yaml';
 import { BashBasedClient } from './clients/bash-client';
-import { Config, FORWARD_TRAFFIC_COMMAND, START_INTERACTIVE_SHELL_COMMAND } from './constants';
+import { ConfigBuilder } from './config/config-builder';
+import { FORWARD_TRAFFIC_COMMAND, START_INTERACTIVE_SHELL_COMMAND } from './constants';
 
 const program = new Command();
 program.option('-f, --file <path>', 'Path to connections configuration file', './config.yml');
@@ -11,8 +10,7 @@ program.parse(process.argv);
 const { file } = program.opts();
 
 (async () => {
-    const buffer = await fsp.readFile(file, 'utf-8');
-    const config = YAML.parse(buffer) as Config;
+    const config = await new ConfigBuilder(file).build();
     const instances = config.instances;
 
     const command = (
@@ -38,18 +36,22 @@ const { file } = program.opts();
         throw new Error(`Unknown instance: ${instanceName}`);
     }
 
-    const client = new BashBasedClient(config.ssh, selectedInstance);
+    const client = new BashBasedClient(config, selectedInstance);
 
-    switch (command) {
-        case START_INTERACTIVE_SHELL_COMMAND:
-            await client.startInteractiveSession();
-            break;
+    try {
+        switch (command) {
+            case START_INTERACTIVE_SHELL_COMMAND:
+                await client.startInteractiveSession();
+                break;
 
-        case FORWARD_TRAFFIC_COMMAND:
-            await client.forwardTraffic();
-            break;
+            case FORWARD_TRAFFIC_COMMAND:
+                await client.forwardTraffic();
+                break;
 
-        default:
-            throw new Error(`Unknown command: ${command}`);
+            default:
+                throw new Error(`Unknown command: ${command}`);
+        }
+    } catch (error) {
+        console.error(`An error occurred while running command "${command}". See details above ^^^^`);
     }
 })();

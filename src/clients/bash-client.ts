@@ -34,11 +34,11 @@ export class BashBasedClient extends AbstractClient {
                 `${config.localPort}:${config.remoteHost}:${config.remotePort}`,
                 '-N', // Do not start shell, just do nothing, wait patiently and keep the tunnel open
                 '-o',
-                `ProxyCommand=aws ssm start-session --target %h --region ${this.instanceDetails.region} --document AWS-StartSSHSession --parameters portNumber=%p`,
+                `ProxyCommand=${this.buildProxyCommand()}`,
                 '-o',
                 'IdentitiesOnly=yes',
                 '-i',
-                this.sshConfig.privateKeyFilePath,
+                this.config.ssh.privateKeyFilePath,
                 `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
             ],
             { stdio: 'inherit' }
@@ -61,11 +61,11 @@ export class BashBasedClient extends AbstractClient {
             'ssh',
             [
                 '-o',
-                `ProxyCommand=aws ssm start-session --target %h --region ${this.instanceDetails.region} --document AWS-StartSSHSession --parameters portNumber=%p`,
+                `ProxyCommand=${this.buildProxyCommand()}`,
                 '-o',
                 'IdentitiesOnly=yes',
                 '-i',
-                this.sshConfig.privateKeyFilePath,
+                this.config.ssh.privateKeyFilePath,
                 `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
             ],
             { stdio: 'inherit' }
@@ -82,6 +82,18 @@ export class BashBasedClient extends AbstractClient {
                 console.log('[SSH spawned process] closed');
                 console.log(`You are no longer connected to "${this.instanceDetails.name}". Bye bye !`);
             });
+    }
+
+    private buildProxyCommand(): string {
+        const awsProfile = this.config.awscli?.profile;
+        return [
+            'aws ssm start-session',
+            '--target %h',
+            `--region ${this.instanceDetails.region}`,
+            '--document AWS-StartSSHSession',
+            '--parameters portNumber=%p',
+            `${awsProfile ? `--profile ${awsProfile}` : ''}`,
+        ].join(' ');
     }
 
     private async getUserPortFowardingSelection(options: PortForwardingConfig[]): Promise<PortForwardingConfig> {

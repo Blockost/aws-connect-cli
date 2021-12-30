@@ -12,6 +12,13 @@ ssh:
     publicKeyFilePath:
     # Path to the private key that will be used to authenticate
     privateKeyFilePath:
+# Configuration for the underlying awscli executable
+awscli:
+  # The profile to use when running AWS commands. If not specified, awscli will use profile credentials of higher precedence, i.e
+  # either "default" profile if named profile are configured or credentials set by environment variables.
+  # @see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+  # @see https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html
+  profile:
 # List of instances to connect to
 instances:
     # User-friendly EC2 instance name that will appear in the instance list

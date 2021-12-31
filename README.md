@@ -1,5 +1,7 @@
 # aws-connect-cli
 
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
+
 ## Table of contents
 1. [Overview](#Overview)
 2. [Prerequisites](#Prerequisites)
@@ -11,13 +13,13 @@
 
 ## Overview
 
-`aws-connect` is an executable for Linux systems relying on AWS CLI that provides a user-friendly, prompt-based interface to connect to AWS EC2 instances securely. Its goal is too eliminate user-managed (and often unsecured) SSH keys and IP-whitelisting done via EC2 Security Groups 🔒.
+`aws-connect` is an executable for Linux systems relying on AWS CLI that provides a user-friendly, prompt-based interface to connect to AWS EC2 instances securely. Its goal is to eliminate user-managed (and often unsecured) SSH keys and IP-whitelisting done via EC2 Security Groups 🔒.
 
 
 ## Prerequisites
 
 - Node v12+
-- AWS cli v2+
+- AWS CLI v2+
   - CLI should be configured properly using an AWS access key
   - Your IAM user should have rights to use [AWS EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html) and [AWS Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html) to connect to EC2 instances
 
@@ -59,7 +61,9 @@ You can find all configuration parameters in [this example](config.example.yml).
 
 ## <a name="NeedHelp"></a> Need help or want to contribute ?
 
-Use `-h` flag to show help. If you find a problem or would like to contribute, feel free to create an issue on the [Github repository](https://github.com/Blockost/aws-connect-cli).
+Use `-h` flag to show help. If you find a problem or would like to contribute, feel free to create an issue on the [Github repository](https://github.com/Blockost/aws-connect-cli/issues).
+
+Before contributing, please read the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Licence
 

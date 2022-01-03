@@ -1,15 +1,23 @@
 import { Command } from 'commander';
 import inquirer from 'inquirer';
+import { version } from '../version';
 import { BashBasedClient } from './clients/bash-client';
 import { ConfigBuilder } from './config/config-builder';
 import { FORWARD_TRAFFIC_COMMAND, START_INTERACTIVE_SHELL_COMMAND } from './constants';
 
 const program = new Command();
 program.option('-f, --file <path>', 'Path to connections configuration file', './config.yml');
+program.option('-v, --version', 'Show version');
 program.parse(process.argv);
-const { file } = program.opts();
+const options = program.opts();
+
+if (options.version) {
+    console.log(version);
+    process.exit(0);
+}
 
 (async () => {
+    const { file } = options;
     const config = await new ConfigBuilder(file).build();
     const instances = config.instances;
 

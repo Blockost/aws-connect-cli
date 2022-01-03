@@ -36,7 +36,7 @@ An alternative would be to clone this repository and build the executable locall
 ```
 $ git clone git@github.com:Blockost/aws-connect-cli.git
 $ cd aws-connect-cli
-$ npm install && ./build-dist.sh
+$ npm install && npm run build
 ```
 
 The executable will be created in the `dist/` folder. 
@@ -48,7 +48,7 @@ set -e
 
 WORKING_DIR=/home/ubuntu/aws-connect-cli
 
-exec $WORKING_DIR/dist/aws-connect-cli -f $WORKING_DIR/config.yml
+exec $WORKING_DIR/dist/aws-connect-cli -f $WORKING_DIR/config.yml "$@"
 
 exit 0
 ```

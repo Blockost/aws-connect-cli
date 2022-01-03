@@ -1,0 +1,34 @@
+# Release a new version with git tag, Github release + artifact uploading
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - name: Update project version
+        id: update-version
+        run: echo ::set-output name=newVersion::$(npm version patch)
+      - name: Build project
+        run: npm install && npm run build
+      - name: Commit & push new version
+        run: |
+          git config --global user.name 'gh-action'
+          git config --global user.email 'gh-action@blockost.com'
+          git commit -am "Release ${{ steps.update-version.outputs.newVersion }}"
+          git push
+      - name: Create new release + upload build artifact
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.update-version.outputs.newVersion }}
+          files: dist/aws-connect-cli

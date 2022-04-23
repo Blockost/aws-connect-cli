@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import { version } from '../version';
 import { BashBasedClient } from './clients/bash-client';
 import { ConfigBuilder } from './config/config-builder';
-import { FORWARD_TRAFFIC_COMMAND, START_INTERACTIVE_SHELL_COMMAND } from './constants';
+import { AvailableCommand } from './constants';
 
 const program = new Command();
 program.option('-f, --file <path>', 'Path to connections configuration file', './config.yml');
@@ -26,7 +26,7 @@ if (options.version) {
             type: 'list',
             name: 'command',
             message: 'What do you want to do?',
-            choices: [START_INTERACTIVE_SHELL_COMMAND, FORWARD_TRAFFIC_COMMAND],
+            choices: [...Object.values(AvailableCommand)],
         })
     ).command as string;
 
@@ -48,12 +48,16 @@ if (options.version) {
 
     try {
         switch (command) {
-            case START_INTERACTIVE_SHELL_COMMAND:
+            case AvailableCommand.START_INTERACTIVE_SHELL_COMMAND:
                 await client.startInteractiveSession();
                 break;
 
-            case FORWARD_TRAFFIC_COMMAND:
+            case AvailableCommand.FORWARD_TRAFFIC_COMMAND:
                 await client.forwardTraffic();
+                break;
+
+            case AvailableCommand.COPY_FILE_COMMAND:
+                await client.copyFile();
                 break;
 
             default:

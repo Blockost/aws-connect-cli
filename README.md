@@ -13,8 +13,16 @@
 
 ## Overview
 
-`aws-connect` is an executable for Linux systems relying on AWS CLI that provides a user-friendly, prompt-based interface to connect to AWS EC2 instances securely. Its goal is to eliminate user-managed (and often unsecured) SSH keys and IP-whitelisting done via EC2 Security Groups 🔒.
+`aws-connect` is an executable for Linux systems relying on AWS CLI that provides a user-friendly, prompt-based interface to connect to AWS EC2 instances securely. Its goal is to eliminate user-managed (and often unsecured) SSH keys, IP-whitelisting and VPC ports opening done via EC2 Security Groups 🔒.
 
+### Capabilities
+
+With `aws-connect`, you can securely:
+- Connect to remote EC2 instances
+- Establish ssh tunnel (port forwarding) between your local machine and remote EC2 instances
+- Copy file between your local machine and remote EC2 instances 
+
+All of these actions are performed via AWS CLI and Session Manager using an existing AWS profile. All security concerns are handled by AWS VPC infrastructure and your mind is at peace 🧘🌼
 
 ## Prerequisites
 
@@ -22,6 +30,7 @@
 - AWS CLI v2+
   - CLI should be configured properly using an AWS access key
   - Your IAM user should have rights to use [AWS EC2 Instance Connect](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Connect-using-EC2-Instance-Connect.html) and [AWS Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/what-is-systems-manager.html) to connect to EC2 instances
+- [Session Manager plugin](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) for AWS CLI v2+
 
 ## Installation
 
@@ -41,7 +50,7 @@ $ npm install && npm run build
 
 The executable will be created in the `dist/` folder. 
 
-Additionally, you can create a wrapper script in your local bin folder `/usr/local/bin/` to run it from anywhere (and provide the necessary config file 🏄). It also simplifies greatly the update process since you will only have to `git pull` and run `build-dist.sh` again to use the latest version:
+Additionally, you can create a wrapper script in your local bin folder `/usr/local/bin/` to run it from anywhere (and encapsulate the necessary config file for you 🏄). It also simplifies greatly the update process since you will only have to `git pull` and run `npm install && npm run build` again to use the latest version:
 ```bash
 #!/bin/bash
 set -e
@@ -57,7 +66,7 @@ exit 0
 
 Configuration is pretty straightforward and use a single `yaml` file. By default, it looks for a file called `config.yml` in the same directory as the executable but you can override this by using `-f` following by the path to your config file. 
 
-You can find all configuration parameters in [this example](config.example.yml). It's highly recommended that you simply copy-paste this file and edit it to suit  your needs.
+You can find all configuration parameters in [this example](config.example.yml). It's highly recommended that you simply copy-paste this file and edit it to suit  your needs (keeping all the comments, it might help 😉).
 
 ## <a name="NeedHelp"></a> Need help or want to contribute ?
 

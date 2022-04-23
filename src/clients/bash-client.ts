@@ -1,7 +1,6 @@
-// import entire SDK
-import { spawn } from 'child_process';
+import { ChildProcess, execSync, spawn } from 'child_process';
 import inquirer from 'inquirer';
-import { PortForwardingConfig } from '../constants';
+import { FileCopyMode, FileCopyOptions, PortForwardingConfig } from '../constants';
 import { AbstractClient } from './abstract-client';
 
 /**
@@ -10,7 +9,22 @@ import { AbstractClient } from './abstract-client';
 export class BashBasedClient extends AbstractClient {
     async startInteractiveSession(): Promise<void> {
         await this.sendSSHKey();
-        this.connectThroughSsm();
+
+        const sshProcess = spawn(
+            'ssh',
+            [
+                '-o',
+                `ProxyCommand=${this.buildProxyCommand()}`,
+                '-o',
+                'IdentitiesOnly=yes',
+                '-i',
+                this.config.ssh.privateKeyFilePath,
+                `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
+            ],
+            { stdio: 'inherit' }
+        );
+
+        this.bindListenersToProcess(sshProcess);
     }
 
     async forwardTraffic(): Promise<void> {
@@ -44,44 +58,27 @@ export class BashBasedClient extends AbstractClient {
             { stdio: 'inherit' }
         );
 
-        sshProcess
-            .once('spawn', () => {
-                console.log('[SSH spawned process] spawned successfully !!');
-            })
-            .on('error', (err) => {
-                console.error('[SSH spawned process] error: ' + err);
-            })
-            .on('close', () => {
-                console.log('[SSH spawned process] closed');
-            });
+        this.bindListenersToProcess(sshProcess);
     }
 
-    private connectThroughSsm() {
-        const sshProcess = spawn(
-            'ssh',
+    async copyFile(): Promise<void> {
+        const options = await this.getFileCopyOptions();
+        await this.sendSSHKey();
+
+        execSync(
             [
+                'scp',
                 '-o',
-                `ProxyCommand=${this.buildProxyCommand()}`,
+                `"ProxyCommand=${this.buildProxyCommand()}"`,
                 '-o',
                 'IdentitiesOnly=yes',
                 '-i',
                 this.config.ssh.privateKeyFilePath,
-                `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`,
-            ],
+                options.recursive ? '-r' : '',
+                this.buildScpFileArgs(options),
+            ].join(' '),
             { stdio: 'inherit' }
         );
-
-        sshProcess
-            .on('spawn', () => {
-                console.log('[SSH spawned process] spawned successfully !!');
-            })
-            .on('error', (err) => {
-                console.error('[SSH spawned process] error: ' + err);
-            })
-            .on('close', () => {
-                console.log('[SSH spawned process] closed');
-                console.log(`You are no longer connected to "${this.instanceDetails.name}". Bye bye !`);
-            });
     }
 
     private buildProxyCommand(): string {
@@ -94,6 +91,16 @@ export class BashBasedClient extends AbstractClient {
             '--parameters portNumber=%p',
             `${awsProfile ? `--profile ${awsProfile}` : ''}`,
         ].join(' ');
+    }
+
+    private buildScpFileArgs(options: FileCopyOptions): string {
+        const remoteHost = `${this.instanceDetails.shellUser}@${this.instanceDetails.id}`;
+
+        if (options.mode === FileCopyMode.UPLOAD) {
+            return `${options.fileLocation} ${remoteHost}:${options.destination}`;
+        }
+
+        return `${remoteHost}:${options.fileLocation} ${options.destination}`;
     }
 
     private async getUserPortFowardingSelection(options: PortForwardingConfig[]): Promise<PortForwardingConfig> {
@@ -140,5 +147,57 @@ export class BashBasedClient extends AbstractClient {
                 return config;
             }
         }
+    }
+
+    private async getFileCopyOptions(): Promise<FileCopyOptions> {
+        const mode = (
+            await inquirer.prompt({
+                type: 'list',
+                name: 'mode',
+                message: 'Select how you want to copy',
+                choices: [...Object.values(FileCopyMode)],
+            })
+        ).mode as FileCopyMode;
+
+        const fileLocation = (
+            await inquirer.prompt({
+                type: 'input',
+                name: 'fileLocation',
+                message: 'Specify the location of the file to copy',
+            })
+        ).fileLocation as string;
+
+        const destination = (
+            await inquirer.prompt({
+                type: 'input',
+                name: 'destination',
+                message: 'Specify the destination where the file will be copied to',
+            })
+        ).destination as string;
+
+        const recursive = (
+            await inquirer.prompt({
+                type: 'confirm',
+                name: 'recursive',
+                message: 'Copy recursively ?',
+                default: false
+            })
+        ).recursive as boolean;
+
+        return { mode, fileLocation, destination, recursive };
+    }
+
+    private bindListenersToProcess(process: ChildProcess): void {
+        process
+            .once('spawn', () => {
+                console.log('[SSH spawned process] spawned successfully !!');
+            })
+            .on('error', (err) => {
+                console.error('[SSH spawned process] error: ' + err);
+            })
+            .on('close', () => {
+                console.log('[SSH spawned process] closed');
+                console.log(`You are no longer connected to "${this.instanceDetails.name}". Bye bye !`);
+            });
     }
 }

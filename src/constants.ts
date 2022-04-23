@@ -30,5 +30,20 @@ export interface PortForwardingConfig {
     remotePort: number;
 }
 
-export const START_INTERACTIVE_SHELL_COMMAND = 'Start interactive shell';
-export const FORWARD_TRAFFIC_COMMAND = 'Forward traffic';
+export interface FileCopyOptions {
+    mode: FileCopyMode;
+    fileLocation: string;
+    destination: string;
+    recursive: boolean;
+}
+
+export enum FileCopyMode {
+    UPLOAD = 'Copy from local to remote (upload)',
+    DOWNLOAD = 'copy from remote to local (download)',
+}
+
+export enum AvailableCommand {
+    START_INTERACTIVE_SHELL_COMMAND = 'Start interactive shell',
+    FORWARD_TRAFFIC_COMMAND = 'Forward traffic',
+    COPY_FILE_COMMAND = 'Copy file',
+}

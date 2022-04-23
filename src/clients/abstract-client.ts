@@ -24,6 +24,11 @@ export abstract class AbstractClient {
     abstract forwardTraffic(): Promise<void>;
 
     /**
+     * Copies file between local machine and target EC2 instance.
+     */
+    abstract copyFile(): Promise<void>;
+
+    /**
      * Sends an SSH public key to the target EC2 instace via `ec2-instance-connect`.
      */
     protected async sendSSHKey(): Promise<void> {
@@ -36,7 +41,6 @@ export abstract class AbstractClient {
 
         const awsProfile = this.config.awscli?.profile;
 
-        // TODO: 2021-08-22 Simon Use Async instead
         execSync(
             [
                 'aws ec2-instance-connect send-ssh-public-key',

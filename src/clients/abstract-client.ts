@@ -36,7 +36,7 @@ export abstract class AbstractClient {
             await this.generateNewSSHKeyPar();
         }
 
-        console.log(`Pushing temporary SSH public key to EC2 instance`);
+        console.log(`Pushing temporary SSH public key to EC2 instance (user '${this.instanceDetails.shellUser}')`);
         console.log('Key will expire in 60 seconds');
 
         const awsProfile = this.config.awscli?.profile;

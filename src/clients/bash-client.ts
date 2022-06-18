@@ -29,11 +29,6 @@ export class BashBasedClient extends AbstractClient {
 
     async forwardTraffic(): Promise<void> {
         const options = this.instanceDetails.portForwardingOptions || [];
-        if (options.length < 1) {
-            console.error(`Instance ${this.instanceDetails.name} is not configured to forward traffic`);
-            return;
-        }
-
         const config = await this.getUserPortFowardingSelection(options);
 
         await this.sendSSHKey();
@@ -180,7 +175,7 @@ export class BashBasedClient extends AbstractClient {
                 type: 'confirm',
                 name: 'recursive',
                 message: 'Copy recursively ?',
-                default: false
+                default: false,
             })
         ).recursive as boolean;
 

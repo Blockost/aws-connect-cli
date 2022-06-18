@@ -1,6 +1,6 @@
 {
     "name": "aws-connect-cli",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Simple CLI to connect or forward traffic to AWS EC2 instances. Requires aws-cli installed locally.",
     "main": "app.js",
     "scripts": {

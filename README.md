@@ -40,7 +40,7 @@ Each version [hosted on Github](https://github.com/Blockost/aws-connect-cli/rele
 
 ### Via git clone
 
-An alternative would be to clone this repository and build the executable locally from the sources. It's actually very fast and only takes a few seconds to build it:
+An alternative solution would be to clone this repository and build the executable locally from the sources. It's actually very fast, it only takes a few seconds to build it:
 
 ```
 $ git clone git@github.com:Blockost/aws-connect-cli.git
